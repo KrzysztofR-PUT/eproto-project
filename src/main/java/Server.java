@@ -6,6 +6,7 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import resources.StudentsResource;
+import utils.MongoUtils;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -21,5 +22,6 @@ public class Server {
         config.register(CoursesResource.class);
         config.register(GradesResource.class);
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, config);
+        MongoUtils.getInstance();
     }
 }

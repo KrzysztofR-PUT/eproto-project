@@ -1,12 +1,17 @@
 package models;
 
+import org.bson.types.ObjectId;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import utils.ObjectIdJaxbAdapter;
 
 import javax.ws.rs.core.Link;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
@@ -14,36 +19,39 @@ import java.util.List;
  * Created by krzysztof on 27/04/2017.
  */
 
+@Entity("courses")
 @XmlRootElement
 public class Course {
-    @InjectLinks({
-            @InjectLink(value = "courses", rel = "parent"),
-            @InjectLink(value = "courses/{id}", rel = "self")
-    })
-    @XmlElement(name = "link")
-    @XmlElementWrapper(name = "links")
-    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-    List<Link> links;
+//    @InjectLinks({
+//            @InjectLink(value = "courses", rel = "parent"),
+//            @InjectLink(value = "courses/{id}", rel = "self")
+//    })
+//    @XmlElement(name = "link")
+//    @XmlElementWrapper(name = "links")
+//    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
+//    List<Link> links;
 
-    private int id;
+    @Id
+    @XmlJavaTypeAdapter(ObjectIdJaxbAdapter.class)
+    private ObjectId id;
     private String name;
     private String lecturer;
 
     public Course(){
-
     }
 
-    public Course(int id, String name, String lecturer) {
-        this.id = id;
+    public Course(String name, String lecturer) {
         this.name = name;
         this.lecturer = lecturer;
     }
 
-    public int getId() {
+
+    @XmlTransient
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 

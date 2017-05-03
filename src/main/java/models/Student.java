@@ -1,12 +1,16 @@
 package models;
 
+import org.bson.types.ObjectId;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
+import org.mongodb.morphia.annotations.*;
+import utils.ObjectIdJaxbAdapter;
 
 import javax.ws.rs.core.Link;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Date;
 import java.util.List;
@@ -15,24 +19,29 @@ import java.util.List;
  * Created by krzysztof on 07/04/2017.
  */
 
+@Entity("students")
+@Indexes(@Index(value = "index", fields = @Field("index")))
 @XmlRootElement
 public class Student {
-    @InjectLinks({
-            @InjectLink(value = "students", rel = "parent"),
-            @InjectLink(value = "students/{index}", rel = "self")
-    })
-    @XmlElement(name = "link")
-    @XmlElementWrapper(name = "links")
-    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-    List<Link> links;
+//    @InjectLinks({
+//            @InjectLink(value = "students", rel = "parent"),
+//            @InjectLink(value = "students/{index}", rel = "self")
+//    })
+//    @XmlElement(name = "link")
+//    @XmlElementWrapper(name = "links")
+//    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
+//    List<Link> links;
 
+    @XmlTransient
+    @Id
+    @XmlJavaTypeAdapter(ObjectIdJaxbAdapter.class)
+    private ObjectId id;
     private int index;
     private String name;
     private String surname;
     private Date birthdate;
 
     public Student() {
-
     }
 
     public Student(int index, String name, String surname, Date birthdate) {
@@ -40,6 +49,15 @@ public class Student {
         this.name = name;
         this.surname = surname;
         this.birthdate = birthdate;
+    }
+
+    @XmlTransient
+    public ObjectId getId() {
+        return id;
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
     public int getIndex() {
