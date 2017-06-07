@@ -24,14 +24,14 @@ import java.util.List;
 @Entity("grades")
 @XmlRootElement
 public class Grade {
-//    @InjectLinks({
-//            @InjectLink(value = "courses/{id}/grades", rel = "parent"),
-//            @InjectLink(value = "courses/{id}/grades/{id}", rel = "self")
-//    })
-//    @XmlElement(name = "link")
-//    @XmlElementWrapper(name = "links")
-//    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-//    List<Link> links;
+    @InjectLinks({
+            @InjectLink(value = "courses/{id}/grades", rel = "parent"),
+            @InjectLink(value = "courses/{id}/grades/{id}", rel = "self")
+    })
+    @XmlElement(name = "link")
+    @XmlElementWrapper(name = "links")
+    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
+    List<Link> links;
 
     @Id
     @XmlJavaTypeAdapter(ObjectIdJaxbAdapter.class)

@@ -2,10 +2,13 @@ package resources;
 
 import models.Grade;
 import utils.LocalData;
+import utils.MongoUtils;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +19,40 @@ import java.util.List;
 
 @Path("/courses/{courseId}/grades")
 public class GradesResource {
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getGrades(@PathParam("courseId") String courseId) {
+        return MongoUtils.getInstance().getGrades(courseId);
+    }
+
+    @GET
+    @Path("{id}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getGrade(@PathParam("courseId") String courseId, @PathParam("id") String id) {
+        return MongoUtils.getInstance().getGrade(courseId, id);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addGrade(@PathParam("courseId") String courseId, Grade grade) {
+        return MongoUtils.getInstance().addGrade(courseId, grade);
+    }
+
+    @PUT
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response modifyGrade(@PathParam("courseId") String courseId, @PathParam("id") String id, Grade grade) {
+        return MongoUtils.getInstance().modifyGrade(courseId, id, grade);
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteGrade(@PathParam("courseId") String courseId, @PathParam("id") String id) {
+        return MongoUtils.getInstance().deleteGrade(courseId, id);
+    }
+
 
 //    @GET
 //    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

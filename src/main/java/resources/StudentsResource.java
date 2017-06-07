@@ -9,9 +9,7 @@ import models.Student;
 import utils.MongoUtils;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -27,9 +25,13 @@ import java.util.List;
 public class StudentsResource {
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public List<Student> getStudents() {
-        return MongoUtils.getInstance().getAllStudents();
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<Student> getStudents(@Context UriInfo info) {
+        MultivaluedMap<String, String> params = info.getQueryParameters();
+        if (params.size() == 0)
+            return MongoUtils.getInstance().getAllStudents();
+        else
+            return MongoUtils.getInstance().getAllStudentsWithFilter(params);
     }
 
     @GET
@@ -37,6 +39,21 @@ public class StudentsResource {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response getStudent(@PathParam("index") int index) {
         return MongoUtils.getInstance().getStudent(index);
+    }
+
+    @GET
+    @Path("{index}/grades/{courseId}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getGradesForStudent(@PathParam("index") int index, @PathParam("courseId") String id) {
+        return MongoUtils.getInstance().getStudentGradesForCourse(index, id);
+    }
+
+    @GET
+    @Path("{index}/grades")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getGradesForStudentWithFilter(@PathParam("index") int index, @Context UriInfo info) {
+        MultivaluedMap<String, String> params = info.getQueryParameters();
+        return MongoUtils.getInstance().getGradesWithFilter(index,params);
     }
 
     @POST

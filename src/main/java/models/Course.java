@@ -1,5 +1,6 @@
 package models;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.bson.types.ObjectId;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
@@ -8,10 +9,7 @@ import org.mongodb.morphia.annotations.Id;
 import utils.ObjectIdJaxbAdapter;
 
 import javax.ws.rs.core.Link;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
@@ -22,14 +20,14 @@ import java.util.List;
 @Entity("courses")
 @XmlRootElement
 public class Course {
-//    @InjectLinks({
-//            @InjectLink(value = "courses", rel = "parent"),
-//            @InjectLink(value = "courses/{id}", rel = "self")
-//    })
-//    @XmlElement(name = "link")
-//    @XmlElementWrapper(name = "links")
-//    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-//    List<Link> links;
+    @InjectLinks({
+            @InjectLink(value = "courses", rel = "parent"),
+            @InjectLink(value = "courses/{id}", rel = "self")
+    })
+    @XmlElement(name = "link")
+    @XmlElementWrapper(name = "links")
+    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
+    List<Link> links;
 
     @Id
     @XmlJavaTypeAdapter(ObjectIdJaxbAdapter.class)

@@ -2,11 +2,12 @@ package resources;
 
 import models.Course;
 import models.Student;
+import org.bson.types.ObjectId;
 import utils.LocalData;
+import utils.MongoUtils;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.net.URI;
 import java.util.List;
 
@@ -16,6 +17,52 @@ import java.util.List;
 
 @Path("/courses")
 public class CoursesResource {
+
+//    @GET
+//    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+//    public List<Course> getCourses() {
+//        return MongoUtils.getInstance().getAllCourses();
+//    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<Course> getCourses(@Context UriInfo info) {
+        MultivaluedMap<String, String> params = info.getQueryParameters();
+        if (params.size() != 0) {
+            return MongoUtils.getInstance().getCoursesWithFilter(params);
+        } else {
+            return MongoUtils.getInstance().getAllCourses();
+        }
+    }
+
+    @GET
+    @Path("{id}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public Response getCourse(@PathParam("id") String id) {
+        return MongoUtils.getInstance().getCourse(id);
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addCourse(Course course) {  //TODO: nie dziala
+        course.setId(new ObjectId());
+        return MongoUtils.getInstance().addCourse(course);
+    }
+
+    @PUT
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response modifyCourse(@PathParam("id") String id, Course course) {   //TODO: nie dziala
+        return MongoUtils.getInstance().modifyCourse(id, course);
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteCourse(@PathParam("id") String id) {
+        return MongoUtils.getInstance().deleteCourse(id);
+    }
 
 //    @GET
 //    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

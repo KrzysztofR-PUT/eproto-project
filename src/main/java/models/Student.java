@@ -1,5 +1,7 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.bson.types.ObjectId;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
@@ -23,14 +25,14 @@ import java.util.List;
 @Indexes(@Index(value = "index", fields = @Field("index")))
 @XmlRootElement
 public class Student {
-//    @InjectLinks({
-//            @InjectLink(value = "students", rel = "parent"),
-//            @InjectLink(value = "students/{index}", rel = "self")
-//    })
-//    @XmlElement(name = "link")
-//    @XmlElementWrapper(name = "links")
-//    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
-//    List<Link> links;
+    @InjectLinks({
+            @InjectLink(value = "students", rel = "parent"),
+            @InjectLink(value = "students/{index}", rel = "self")
+    })
+    @XmlElement(name = "link")
+    @XmlElementWrapper(name = "links")
+    @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
+    List<Link> links;
 
     @XmlTransient
     @Id
@@ -39,6 +41,7 @@ public class Student {
     private int index;
     private String name;
     private String surname;
+    @JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone="CET")
     private Date birthdate;
 
     public Student() {
