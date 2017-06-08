@@ -73,13 +73,14 @@ public class MongoQueries {
     static Query<Course> allCoursesForLecturer(MultivaluedMap<String, String> params, Datastore ds) {
         Query<Course> query = ds.createQuery(Course.class);
         if (params.containsKey("lecturer"))
-            query.field("lecturer").equal(params.get("lecturer").get(0));
+            query.field("lecturer").containsIgnoreCase(params.get("lecturer").get(0));
         return query;
     }
     static Query<Course> courseWithId(String id, Datastore ds) {
         return ds.createQuery(Course.class).field("_id").equal(new ObjectId(id));
     }
     static Query<Grade> allGrades(Datastore ds) {
+        System.out.println("Trying");
         return ds.createQuery(Grade.class);
     }
     static Query<Grade> allGradesForCourse(String id, Datastore ds) {
