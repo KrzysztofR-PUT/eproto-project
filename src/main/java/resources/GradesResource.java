@@ -5,10 +5,7 @@ import utils.LocalData;
 import utils.MongoUtils;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,8 +19,12 @@ public class GradesResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getGrades(@PathParam("courseId") String courseId) {
-        return MongoUtils.getInstance().getGrades(courseId);
+    public Response getGrades(@Context UriInfo info, @PathParam("courseId") String courseId) {
+        MultivaluedMap<String, String> params = info.getQueryParameters();
+        if (params.size() == 0)
+            return MongoUtils.getInstance().getGrades(courseId);
+        else
+            return MongoUtils.getInstance().getAllGradesWithFilter(courseId, params);
     }
 
     @GET

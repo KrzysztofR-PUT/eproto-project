@@ -37,10 +37,29 @@ public class MongoQueries {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
         Query<Student> query = ds.createQuery(Student.class);
+        if (params.containsKey("index")) {
+            if (!params.get("index").get(0).isEmpty()) {
+                int index = Integer.parseInt(params.get("index").get(0));
+                query.field("index").equal(index);
+            }
+        }
         if (params.containsKey("name"))
             query.field("name").containsIgnoreCase(params.get("name").get(0));
         if (params.containsKey("surname"))
             query.field("surname").containsIgnoreCase(params.get("surname").get(0));
+        if (params.containsKey("date")) {
+                if(params.get("date").get(0).length() >0) {
+                    Date from = new Date(); //TODO: zmienne
+                    try {
+                        from = df.parse(params.get("date").get(0));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(from);
+                    if (from != null)
+                        query.field("birthdate").equal(from);
+                }
+        }
         if (params.containsKey("from")) {
             Date from = new Date();
             try {
@@ -72,6 +91,8 @@ public class MongoQueries {
     }
     static Query<Course> allCoursesForLecturer(MultivaluedMap<String, String> params, Datastore ds) {
         Query<Course> query = ds.createQuery(Course.class);
+        if (params.containsKey("name"))
+            query.field("name").containsIgnoreCase(params.get("name").get(0));
         if (params.containsKey("lecturer"))
             query.field("lecturer").containsIgnoreCase(params.get("lecturer").get(0));
         return query;
@@ -82,6 +103,25 @@ public class MongoQueries {
     static Query<Grade> allGrades(Datastore ds) {
         System.out.println("Trying");
         return ds.createQuery(Grade.class);
+    }
+    static Query<Grade> allGrades(MultivaluedMap<String, String> params, Datastore ds) {
+        Query<Grade> query = ds.createQuery(Grade.class);
+        if (params.containsKey("grade")) {
+            int gr = Integer.valueOf(params.get("grade").get(0));
+            query.field("value").equal(gr);
+        }
+        if (params.containsKey("coursename")) {
+            query.field("course").containsIgnoreCase(params.get("coursename").get(0));
+        }
+        if (params.containsKey("studentname")) {
+            query.field("student").containsIgnoreCase(params.get("studentname").get(0));
+        }
+        if (params.containsKey("date")) {
+
+        }
+
+
+        return query;
     }
     static Query<Grade> allGradesForCourse(String id, Datastore ds) {
         System.out.println(id);

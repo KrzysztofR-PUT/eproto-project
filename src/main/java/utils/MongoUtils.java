@@ -3,6 +3,7 @@ package utils;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import models.Counters;
 import models.Course;
 import models.Grade;
 import models.Student;
@@ -16,7 +17,12 @@ import org.mongodb.morphia.query.UpdateResults;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +51,10 @@ public class MongoUtils {
 
     private void populateMongoWithSampleData() {
         SampleData sampleData = new SampleData();
-        datastore.save(sampleData.getStudents());
+        List<Student> students = sampleData.getStudents();
+        for (Student student : students)
+            student.setIndex(getNext("index"));
+        datastore.save(students);
         datastore.save(sampleData.getCourses());
         datastore.save(sampleData.getGrades());
     }
@@ -102,12 +111,15 @@ public class MongoUtils {
     }
 
     public Response addStudent(Student student) {
-        if (!indexExists(student.getIndex())) {
-            datastore.save(student);
-            return Response.status(Response.Status.OK).build();
-        } else {
-            return Response.status(Response.Status.CONFLICT).build();
-        }
+        student.setIndex(getNext("index"));
+        datastore.save(student);
+        return Response.status(Response.Status.OK).build();
+//        if (!indexExists(student.getIndex())) {
+//            datastore.save(student);
+//            return Response.status(Response.Status.OK).build();
+//        } else {
+//            return Response.status(Response.Status.CONFLICT).build();
+//        }
     }
 
     public Response modifyStudent(int index, Student student) {
@@ -250,6 +262,38 @@ public class MongoUtils {
         }
     }
 
+    public Response getAllGradesWithFilter(String courseId, MultivaluedMap<String, String> params) {
+        if (courseIdExists(courseId)) {
+            List<Grade> grades = MongoQueries.allGradesForCourse(courseId, datastore).asList();
+            List<Grade> filtered = grades.stream().filter(g -> g.getCourse().getId().equals(new ObjectId(courseId))).collect(Collectors.toList());
+            if (params.containsKey("grade") && !params.get("grade").get(0).isEmpty())
+                filtered = filtered.stream().filter(g -> g.getValue() == Double.parseDouble(params.get("grade").get(0))).collect(Collectors.toList());
+            if (params.containsKey("studentname"))
+                filtered = filtered.stream().filter(g -> g.getStudent().getSurname().toLowerCase().contains(params.get("studentname").get(0).toLowerCase()) || g.getStudent().getName().toLowerCase().contains(params.get("studentname").get(0).toLowerCase())).collect(Collectors.toList());
+            if (params.containsKey("date") && !params.get("date").get(0).isEmpty()) {
+                try {
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    Date filterDate = df.parse(params.get("date").get(0));
+
+                    filtered = filtered.stream().filter(g -> {
+                        Calendar cal1 = Calendar.getInstance();
+                        Calendar cal2 = Calendar.getInstance();
+                        cal1.setTime(filterDate);
+                        cal2.setTime(g.getDate());
+                        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+                    }).collect(Collectors.toList());
+                } catch (ParseException e) {
+                    filtered.clear();
+                }
+            }
+
+            return Response.status(Response.Status.OK).entity(filtered).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
     public Response getGrade(String courseId, String gradeId) {
         if (courseIdExists(courseId) && gradeIdExists(gradeId)) {
             List<Grade> grades = MongoQueries.allGradesForCourse(courseId, datastore).asList();
@@ -259,6 +303,8 @@ public class MongoUtils {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+
+
 
 
     public Response addGrade(String courseId, Grade grade) {
@@ -313,5 +359,24 @@ public class MongoUtils {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+    //endregion
+
+    //region Helpers
+
+    public int getNext(String collection) {
+        Counters seq = datastore.findAndModify(
+                datastore.find(Counters.class, "key = ", collection), // query
+                datastore.createUpdateOperations(Counters.class).inc("counter") // update
+        );
+
+        // create a sequence record for your collection if not found
+        if(seq == null) {
+            seq = new Counters(collection, 111);
+            datastore.save(seq);
+        }
+
+        return seq.getCounter();
+    }
+
     //endregion
 }

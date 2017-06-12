@@ -36,7 +36,7 @@ public class Student {
 
     @XmlTransient
     @Id
-    @XmlJavaTypeAdapter(ObjectIdJaxbAdapter.class)
+    //@XmlJavaTypeAdapter(ObjectIdJaxbAdapter.class)
     private ObjectId id;
     private int index;
     private String name;
